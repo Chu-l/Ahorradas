@@ -1,3 +1,19 @@
+// Datos iniciales
+
+if (localStorage.getItem("categorias") === null) {
+    let categorias = ['Comida', 'Servicios', 'Salidas', 'Educación', 'Transporte', 'Trabajo']
+    localStorage.setItem('categorias', JSON.stringify(categorias))
+}
+if (localStorage.getItem("operaciones") === null) {
+    let operaciones = []
+    localStorage.setItem('operaciones', JSON.stringify(operaciones))
+}
+if (localStorage.getItem("contador") === null) {
+    localStorage.setItem('contador', 0)
+}
+
+listaCategorias()
+
 // Funciones show/hide
 
 function showBalance() {
@@ -36,3 +52,16 @@ function hideAll() {
     document.getElementById("seccion-reportes").classList.add('visually-hidden')
 }
 
+function listaCategorias() {
+    let categorias = JSON.parse(localStorage.getItem("categorias"))
+    for (let i=0 ; i < categorias.length ; i++) {
+        document.getElementById('lista-categorias').innerHTML += `<p class="row">
+    <span class="col">${categorias[i]}</span>
+    <span class="col text-end">
+        <a href="">Editar</a>
+        <a href="">Eliminar</a>
+    </span>
+    </p>`
+    }
+
+}
