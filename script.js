@@ -12,7 +12,7 @@ if (localStorage.getItem("contador") === null) {
     localStorage.setItem('contador', 0)
 }
 
-listaCategorias()
+populateCategorias()
 
 // Funciones show/hide
 
@@ -33,7 +33,7 @@ function showCategorias() {
 
 function showEditar(index) {
     hideAll()
-    const categorias = JSON.parse(localStorage.getItem("categorias"))
+    let categorias = JSON.parse(localStorage.getItem("categorias"))
     document.getElementById("input-editar-categoria").setAttribute('placeholder', categorias[index])
     document.getElementById("boton-editar-categoria").setAttribute('onclick', `editarCategoria('${index}')`)
     document.getElementById("editar-categoria").classList.remove('visually-hidden')
@@ -41,27 +41,104 @@ function showEditar(index) {
 
 function showReportes() {
     hideAll()
+    if (getOperaciones().length > 0) {
+        showOperacionesReportes()
+    }
     document.getElementById("seccion-reportes").classList.remove('visually-hidden')
 }
 
 function hideAll() {
     document.getElementById("seccion-balance").classList.add('visually-hidden')
     document.getElementById("nueva-operacion").classList.add('visually-hidden')
+    document.getElementById("editar-operacion").classList.add('visually-hidden')
     document.getElementById("seccion-categorias").classList.add('visually-hidden')
     document.getElementById("editar-categoria").classList.add('visually-hidden')
     document.getElementById("seccion-reportes").classList.add('visually-hidden')
 }
 
-function listaCategorias() {
-    let categorias = JSON.parse(localStorage.getItem("categorias"))
-    for (let i=0 ; i < categorias.length ; i++) {
-        document.getElementById('lista-categorias').innerHTML += `<p class="row">
-    <span class="col">${categorias[i]}</span>
+function hideFilters() {
+    document.getElementById("ocultar-filtros").classList.add('visually-hidden')
+    document.getElementById("mostrar-filtros").classList.remove('visually-hidden')
+    document.getElementById("filtros").classList.add('visually-hidden')
+}
+
+function showFilters() {
+    document.getElementById("mostrar-filtros").classList.add('visually-hidden')
+    document.getElementById("ocultar-filtros").classList.remove('visually-hidden')
+    document.getElementById("filtros").classList.remove('visually-hidden')
+}
+
+function showOperaciones() {
+    document.getElementById("operaciones-no-results").classList.add('visually-hidden')
+    document.getElementById("operaciones-results").classList.remove('visually-hidden')
+}
+
+function showEditarOperacion(id) {
+    hideAll()
+    let operaciones = getOperaciones()
+    document.getElementById("boton-editar-operacion").setAttribute('onclick', `editOperacion('${id}')`)
+    document.getElementById("editar-operacion").classList.remove('visually-hidden')
+}
+
+function showOperacionesReportes() {
+    document.getElementById("reportes-no-results").classList.add('visually-hidden')
+    document.getElementById("reportes-results").classList.remove('visually-hidden')
+}
+
+
+// Mostrar Categorias
+
+function populateCategorias() {
+
+    let categorias = getCategorias()
+
+    // select-categorias en filtros
+
+    document.getElementById("filtros-categoria").innerHTML = ``
+    document.getElementById("filtros-categoria").innerHTML +=
+        `<option>Todas</option>`
+    for (let i = 0; i < categorias.length; i++) {
+        document.getElementById("filtros-categoria").innerHTML +=
+            `<option value="${i}">${categorias[i]}</option>`
+    }
+
+    // select categorias en nueva operacion
+
+    document.getElementById("nueva-operacion-categoria").innerHTML = ``
+    for (let i = 0; i < categorias.length; i++) {
+        document.getElementById("nueva-operacion-categoria").innerHTML +=
+            `<option value="${i}">${categorias[i]}</option>`
+    }
+
+    // select categorias en editar operacion
+
+    document.getElementById("editar-operacion-categoria").innerHTML = ``
+    for (let i = 0; i < categorias.length; i++) {
+        document.getElementById("editar-operacion-categoria").innerHTML +=
+            `<option value="${i}">${categorias[i]}</option>`
+    }
+
+    // lista de categorias en seccion categorias
+
+    document.getElementById("lista-categorias").innerHTML = ``
+    for (let i = 0; i < categorias.length; i++) {
+        document.getElementById("lista-categorias").innerHTML +=
+            `<p class="row p-2 ">
+    <span class="col"><mark class="text-white bg-success">${categorias[i]}</mark></span>
     <span class="col text-end">
-        <a href="">Editar</a>
-        <a href="">Eliminar</a>
+        <a href="#" onclick="showEditar(${i})">Editar</a>
+        <a href="#" onclick="eliminarCategoria(${i})">Eliminar</a>
     </span>
     </p>`
     }
+}
 
+//CRUD
+
+function getCategorias() {
+    return JSON.parse(localStorage.getItem("categorias"))
+}
+
+function getOperaciones() {
+    return JSON.parse(localStorage.getItem("operaciones"))
 }
