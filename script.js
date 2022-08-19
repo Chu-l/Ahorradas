@@ -133,12 +133,113 @@ function populateCategorias() {
     }
 }
 
-//CRUD
+// FUNCIONES CRUD
+
+// Categorias
 
 function getCategorias() {
     return JSON.parse(localStorage.getItem("categorias"))
 }
 
+function newCategoria() {
+    let categoria = document.getElementById("agregar-categoria").value
+    let categorias = JSON.parse(localStorage.getItem("categorias")).concat([categoria])
+    localStorage.removeItem('categorias')
+    localStorage.setItem('categorias', JSON.stringify(categorias))
+    populateCategorias()
+}
+
+function editarCategoria(index) {
+    let categorias = JSON.parse(localStorage.getItem("categorias"))
+    categorias[index] = document.getElementById("input-editar-categoria").value
+    localStorage.removeItem('categorias')
+    localStorage.setItem('categorias', JSON.stringify(categorias))
+    populateCategorias()
+    showCategorias()
+}
+
+function eliminarCategoria(index) {
+    let categorias = JSON.parse(localStorage.getItem("categorias"))
+    categorias.splice(index, 1)
+    localStorage.removeItem('categorias')
+    localStorage.setItem('categorias', JSON.stringify(categorias))
+    populateCategorias()
+}
+
+// Operaciones
+
 function getOperaciones() {
     return JSON.parse(localStorage.getItem("operaciones"))
+}
+
+function newOperacion() {
+    let count = localStorage.getItem("contador")
+    let operacion = {
+        id: count,
+        descripcion: document.getElementById('nueva-operacion-descripcion').value,
+        monto: document.getElementById("nueva-operacion-monto").value,
+        tipo: getValueFromSelect("nueva-operacion-tipo"),
+        categoria: getValueFromSelect("nueva-operacion-categoria"),
+        fecha: document.getElementById("nueva-operacion-fecha").value
+    }
+    let operaciones = getOperaciones().concat([operacion])
+    localStorage.setItem('operaciones', JSON.stringify(operaciones))
+    localStorage.setItem('contador', parseInt(count) + 1)
+    //populateOperaciones()
+    showBalance()
+}
+
+function getOperacionById(id) {
+    let operaciones = getOperaciones()
+    for (let i = 0; i < operaciones.length; i++) {
+        if (operaciones[i].id == id) {
+            return operaciones[i]
+        }
+    }
+}
+
+function editOperacion(id) {
+    let operacion = getOperacionById(id)
+    let descripcion = document.getElementById('editar-operacion-descripcion').value
+    let monto = document.getElementById("editar-operacion-monto").value
+    let tipo = getValueFromSelect("editar-operacion-tipo")
+    let categoria = getValueFromSelect("editar-operacion-categoria")
+    let fecha = document.getElementById("editar-operacion-fecha").value
+    if(descripcion != '') {
+        operacion.descripcion = descripcion
+    }
+    if(monto != '') {
+        operacion.monto = monto
+    }
+    if(tipo != '') {
+        operacion.tipo = tipo
+    }
+    if(categoria != '') {
+        operacion.categoria = categoria
+    }
+    if(fecha != '') {
+        operacion.fecha = fecha
+    }
+    let operaciones = getOperaciones()
+    operaciones.splice(operaciones.indexOf(operacion), 1)
+    localStorage.removeItem('operaciones')
+    localStorage.setItem('operaciones', JSON.stringify(operaciones.concat([operacion])))
+    //populateOperaciones()
+    showBalance()
+}
+
+function deleteOperacion(id) {
+    let operaciones = getOperaciones()
+    operaciones.splice(operaciones.indexOf(getOperacionById(id)), 1)
+    localStorage.removeItem('operaciones')
+    localStorage.setItem('operaciones', JSON.stringify(operaciones))
+    //populateOperaciones()
+}
+
+// UTILS
+
+function getValueFromSelect(id) {
+    let select = document.getElementById(id);
+    let value = select.options[select.selectedIndex].text
+    return value
 }
