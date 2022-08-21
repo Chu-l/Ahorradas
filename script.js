@@ -1,4 +1,4 @@
-// Datos iniciales
+// DATOS INICIALES
 
 if (localStorage.getItem("categorias") === null) {
     let categorias = ['Comida', 'Servicios', 'Salidas', 'Educación', 'Transporte', 'Trabajo']
@@ -13,6 +13,7 @@ if (localStorage.getItem("contador") === null) {
 }
 
 populateCategorias()
+populateOperaciones()
 
 // Funciones show/hide
 
@@ -75,7 +76,6 @@ function showOperaciones() {
 
 function showEditarOperacion(id) {
     hideAll()
-    let operaciones = getOperaciones()
     document.getElementById("boton-editar-operacion").setAttribute('onclick', `editOperacion('${id}')`)
     document.getElementById("editar-operacion").classList.remove('visually-hidden')
 }
@@ -133,6 +133,46 @@ function populateCategorias() {
     }
 }
 
+// Mostrar Operaciones
+
+function populateOperaciones() {
+    let operaciones = getOperaciones()
+    renderOperaciones(operaciones)
+}
+
+function renderOperaciones(operaciones) {
+    if (operaciones.length > 0) {
+        document.getElementById("operaciones-no-results").classList.add('visually-hidden')
+        document.getElementById("operaciones-results").classList.remove('visually-hidden')
+        showOperaciones()
+        document.getElementById("operaciones-results").innerHTML =
+        `<tr>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th>Fecha</th>
+            <th>Monto</th>
+            <th>Acciones</th>
+        </tr>`
+        for (let i = 0; i < operaciones.length; i++) {
+            document.getElementById("operaciones-results").innerHTML +=
+            `<tr>
+                <td>${operaciones[i].descripcion}</td>
+                <td><mark class="text-white bg-success">${operaciones[i].categoria}</mark></td>
+                <td>${operaciones[i].fecha}</td>
+                <td>${operaciones[i].monto}</td>
+                <td>
+                    <a href="#" onclick="showEditarOperacion(${operaciones[i].id})">Editar</a>
+                    <a href="#" onclick="deleteOperacion(${operaciones[i].id})">Eliminar</a>
+                </td>
+            </tr>`
+        }
+    }
+    else {
+        document.getElementById("operaciones-results").classList.add('visually-hidden')
+        document.getElementById("operaciones-no-results").classList.remove('visually-hidden')
+    }
+}
+
 // FUNCIONES CRUD
 
 // Categorias
@@ -143,10 +183,12 @@ function getCategorias() {
 
 function newCategoria() {
     let categoria = document.getElementById("agregar-categoria").value
-    let categorias = JSON.parse(localStorage.getItem("categorias")).concat([categoria])
-    localStorage.removeItem('categorias')
-    localStorage.setItem('categorias', JSON.stringify(categorias))
-    populateCategorias()
+    if (categoria != '') {
+        let categorias = JSON.parse(localStorage.getItem("categorias")).concat([categoria])
+        localStorage.removeItem('categorias')
+        localStorage.setItem('categorias', JSON.stringify(categorias))
+        populateCategorias()
+    }
 }
 
 function editarCategoria(index) {
@@ -185,7 +227,7 @@ function newOperacion() {
     let operaciones = getOperaciones().concat([operacion])
     localStorage.setItem('operaciones', JSON.stringify(operaciones))
     localStorage.setItem('contador', parseInt(count) + 1)
-    //populateOperaciones()
+    populateOperaciones()
     showBalance()
 }
 
@@ -224,7 +266,7 @@ function editOperacion(id) {
     operaciones.splice(operaciones.indexOf(operacion), 1)
     localStorage.removeItem('operaciones')
     localStorage.setItem('operaciones', JSON.stringify(operaciones.concat([operacion])))
-    //populateOperaciones()
+    populateOperaciones()
     showBalance()
 }
 
@@ -233,7 +275,7 @@ function deleteOperacion(id) {
     operaciones.splice(operaciones.indexOf(getOperacionById(id)), 1)
     localStorage.removeItem('operaciones')
     localStorage.setItem('operaciones', JSON.stringify(operaciones))
-    //populateOperaciones()
+    populateOperaciones()
 }
 
 // UTILS
