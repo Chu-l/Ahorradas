@@ -124,7 +124,7 @@ function populateCategorias() {
     for (let i = 0; i < categorias.length; i++) {
         document.getElementById("lista-categorias").innerHTML +=
             `<p class="row p-2 ">
-    <span class="col"><mark class="text-white bg-success">${categorias[i]}</mark></span>
+    <span class="col"><mark class="text-white bg-info">${categorias[i]}</mark></span>
     <span class="col text-end">
         <a href="#" onclick="showEditar(${i})">Editar</a>
         <a href="#" onclick="eliminarCategoria(${i})">Eliminar</a>
@@ -137,7 +137,24 @@ function populateCategorias() {
 
 function populateOperaciones() {
     let operaciones = getOperaciones()
+    renderBalance(operaciones)
     renderOperaciones(operaciones)
+}
+
+function renderBalance(operaciones) {
+    let ganancias = montoOperaciones(getGanancias(operaciones))
+    let gastos = montoOperaciones(getGastos(operaciones))
+    document.getElementById("balance-ganancias").innerHTML = `${'+ $' + ganancias}`
+    document.getElementById("balance-gastos").innerHTML = `${'- $' + gastos}`
+    if (ganancias - gastos > 0) {
+        document.getElementById("balance-total").innerHTML = `${'+ $' + (ganancias - gastos)}`
+    }
+    if (ganancias - gastos < 0) {
+        document.getElementById("balance-total").innerHTML = `${'- $' + (Math.abs(ganancias - gastos))}`
+    }
+    if (ganancias - gastos == 0) {
+        document.getElementById("balance-total").innerHTML = `${'$' + 0}`
+    }
 }
 
 function renderOperaciones(operaciones) {
@@ -157,7 +174,7 @@ function renderOperaciones(operaciones) {
             document.getElementById("operaciones-results").innerHTML +=
             `<tr>
                 <td>${operaciones[i].descripcion}</td>
-                <td><mark class="text-white bg-success">${operaciones[i].categoria}</mark></td>
+                <td><mark class="text-white bg-info">${operaciones[i].categoria}</mark></td>
                 <td>${operaciones[i].fecha}</td>
                 <td>${operaciones[i].monto}</td>
                 <td>
@@ -276,6 +293,36 @@ function deleteOperacion(id) {
     localStorage.removeItem('operaciones')
     localStorage.setItem('operaciones', JSON.stringify(operaciones))
     populateOperaciones()
+}
+
+// Funciones para Balance
+
+function getGanancias(operaciones) {
+    let ganancias = []
+    for(let i = 0; i < operaciones.length; i++) {
+        if(operaciones[i].tipo === 'Ganancia') {
+            ganancias.push(operaciones[i])
+        }
+    }
+    return ganancias
+}
+
+function getGastos(operaciones) {
+    let gastos = []
+    for(let i = 0; i < operaciones.length; i++) {
+        if(operaciones[i].tipo === 'Gasto') {
+            gastos.push(operaciones[i])
+        }
+    }
+    return gastos
+}
+
+function montoOperaciones(operaciones) {
+    let monto = 0
+    for(let i = 0; i < operaciones.length; i++) {
+        monto += parseFloat(operaciones[i].monto)
+    }
+    return monto
 }
 
 // UTILS
