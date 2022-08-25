@@ -43,7 +43,10 @@ function showEditar(index) {
 function showReportes() {
     hideAll()
     if (getOperaciones().length > 0) {
-        showOperacionesReportes()
+        showReportesResults()
+    }
+    else {
+        showReportesNoResults()
     }
     document.getElementById("seccion-reportes").classList.remove('visually-hidden')
 }
@@ -80,11 +83,15 @@ function showEditarOperacion(id) {
     document.getElementById("editar-operacion").classList.remove('visually-hidden')
 }
 
-function showOperacionesReportes() {
+function showReportesResults() {
     document.getElementById("reportes-no-results").classList.add('visually-hidden')
     document.getElementById("reportes-results").classList.remove('visually-hidden')
 }
 
+function showReportesNoResults() {
+    document.getElementById("reportes-results").classList.add('visually-hidden')
+    document.getElementById("reportes-no-results").classList.remove('visually-hidden')
+}
 
 // Mostrar Categorias
 
@@ -295,6 +302,58 @@ function deleteOperacion(id) {
     populateOperaciones()
 }
 
+// filtros funciones
+
+function filtrarOperacionesTipo(tipo, operaciones) {
+    if (tipo === 'Todos') {
+        return operaciones
+    } else if(tipo == 'Ganancias') {
+        return getGanancias(operaciones)
+    } else if(tipo == 'Gastos') {
+        return getGastos(operaciones)
+    }
+}
+
+function filtrarOperacionesCategoria(categoria, operaciones) {
+    if (categoria === 'Todas') {
+        return operaciones
+    } else {
+        let operacionesCategoria = []
+        for (let i = 0; i < operaciones.length; i++) {
+            if (operaciones[i].categoria == categoria) {
+                operacionesCategoria.push(operaciones[i])
+            }
+        }
+        return operacionesCategoria
+    }
+}
+
+function filtrarOperacionesSinceDate(date, operaciones) {
+    let operacionesSinceDate = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (operaciones[i].fecha >= date) {
+            operacionesSinceDate.push(operaciones[i])
+        }
+    }
+    return operacionesSinceDate
+}
+
+function sortOperacionesFechaMenosReciente(operaciones) {
+    return operaciones.sort((a, b) => a.fecha.localeCompare(b.fecha))
+}
+
+function sortOperacionesMenorMonto(operaciones) {
+    return operaciones.sort(function (a, b) {
+        a.monto = parseFloat(a.monto)
+        b.monto = parseFloat(b.monto)
+        return a.monto - b.monto
+    })
+}
+
+function sortOperacionesAZ(operaciones) {
+    return operaciones.sort((a, b) => a.descripcion.localeCompare(b.descripcion))
+}
+
 // Funciones para Balance
 
 function getGanancias(operaciones) {
@@ -324,6 +383,21 @@ function montoOperaciones(operaciones) {
     }
     return monto
 }
+
+// Reportes
+
+function operacionMayorMonto(operaciones) {
+    let mayorMonto = 0
+    let operacionConMayorMonto
+    for (let i = 0; i < operaciones.length; i++) {
+        if (parseFloat(operaciones[i].monto) > mayorMonto) {
+            operacionConMayorMonto = operaciones[i]
+            mayorMonto = operaciones[i].monto
+        }
+    }
+    return operacionConMayorMonto
+}
+
 
 // UTILS
 
