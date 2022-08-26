@@ -376,12 +376,16 @@ function getGastos(operaciones) {
     return gastos
 }
 
-function montoOperaciones(operaciones) {
-    let monto = 0
-    for(let i = 0; i < operaciones.length; i++) {
-        monto += parseFloat(operaciones[i].monto)
+function getGananciaDeOperacion(operacion) {
+    if (operacion.tipo == 'Ganancia') {
+        return parseFloat(operacion.monto)
     }
-    return monto
+}
+
+function getGastoDeOperacion(operacion) {
+    if (operacion.tipo == 'Gasto') {
+        return parseFloat(operacion.monto)
+    }
 }
 
 // Reportes
@@ -398,6 +402,97 @@ function operacionMayorMonto(operaciones) {
     return operacionConMayorMonto
 }
 
+function getMesOperacion(operacion) {
+    return operacion.fecha.split('-')[1]
+}
+
+function getAnioOperacion(operacion) {
+    return operacion.fecha.split('-')[0]
+}
+
+function getFechaOperacion(operacion) {
+    return operacion.fecha.split('-')[0] + '-' + operacion.fecha.split('-')[1]
+}
+
+function getAnios(operaciones) {
+    operaciones = sortOperacionesFechaMenosReciente(operaciones)
+    let primerAnio = parseInt(getAnioOperacion(operaciones[0]))
+    let ultimoAnio = parseInt(getAnioOperacion(operaciones[operaciones.length - 1]))
+    let anios = []
+    for (let i = 0; primerAnio + i <= ultimoAnio; i++) {
+        anios.push(primerAnio + i)
+    }
+    return anios
+}
+
+function operacionesPorAnio(anio, operaciones) {
+    let operacionesDelAnio = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (getAnioOperacion(operaciones[i]) == anio) {
+            operacionesDelAnio.push(operaciones[i])
+        }
+    }
+    return operacionesDelAnio
+}
+
+function operacionMayorGanancia(operaciones) {
+    let mayorGanancia = 0
+    let operacionMayorGanancia = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (getGananciaDeOperacion(operaciones[i]) > mayorGanancia) {
+            mayorGanancia = getGananciaDeOperacion(operaciones[i])
+            operacionMayorGanancia = operaciones[i]
+        }
+    }
+    return operacionMayorGanancia
+}
+
+function operacionMayorGasto(operaciones) {
+    let mayorGasto = 0
+    let operacionMayorGasto = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (getGastoDeOperacion(operaciones[i]) > mayorGasto) {
+            mayorGasto = getGastoDeOperacion(operaciones[i])
+            operacionMayorGasto = operaciones[i]
+        }
+    }
+    return operacionMayorGasto
+}
+
+function operacionesPorMes(mes, operaciones) {
+    let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    let operacionesDelMes = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (meses[parseInt(getMesOperacion(operaciones[i])) - 1] == mes) {
+            operacionesDelMes.push(operaciones[i])
+        }
+    }
+    return operacionesDelMes
+}
+
+function gananciaDelMes(mes, operaciones) {
+    return montoOperaciones(operacionesPorMes(mes, getGanancias(operaciones)))
+}
+
+function gastoDelMes(mes, operaciones) {
+    return montoOperaciones(operacionesPorMes(mes, getGastos(operaciones)))
+}
+
+function gananciaPorCategoria(categoria, operaciones) {
+    return montoOperaciones(filtrarOperacionesCategoria(categoria, getGanancias(operaciones)))
+}
+
+function gastoPorCategoria(categoria, operaciones) {
+    return montoOperaciones(filtrarOperacionesCategoria(categoria, getGastos(operaciones)))
+}
+
+function montoOperaciones(operaciones) {
+    let monto = 0
+    for(let i = 0; i < operaciones.length; i++) {
+        monto += parseFloat(operaciones[i].monto)
+    }
+    return monto
+}
 
 // UTILS
 
