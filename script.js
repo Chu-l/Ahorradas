@@ -43,7 +43,10 @@ function showEditar(index) {
 function showReportes() {
     hideAll()
     if (getOperaciones().length > 0) {
-        showOperacionesReportes()
+        showReportesResults()
+    }
+    else {
+        showReportesNoResults()
     }
     document.getElementById("seccion-reportes").classList.remove('visually-hidden')
 }
@@ -80,11 +83,15 @@ function showEditarOperacion(id) {
     document.getElementById("editar-operacion").classList.remove('visually-hidden')
 }
 
-function showOperacionesReportes() {
+function showReportesResults() {
     document.getElementById("reportes-no-results").classList.add('visually-hidden')
     document.getElementById("reportes-results").classList.remove('visually-hidden')
 }
 
+function showReportesNoResults() {
+    document.getElementById("reportes-results").classList.add('visually-hidden')
+    document.getElementById("reportes-no-results").classList.remove('visually-hidden')
+}
 
 // Mostrar Categorias
 
@@ -139,6 +146,7 @@ function populateOperaciones() {
     let operaciones = getOperaciones()
     renderBalance(operaciones)
     renderOperaciones(operaciones)
+    renderReportes(operaciones)
 }
 
 function renderBalance(operaciones) {
@@ -187,6 +195,96 @@ function renderOperaciones(operaciones) {
     else {
         document.getElementById("operaciones-results").classList.add('visually-hidden')
         document.getElementById("operaciones-no-results").classList.remove('visually-hidden')
+    }
+}
+
+function renderReportes() {
+    document.getElementById("reportes-resumen").innerHTML = ``
+    document.getElementById("reportes-resumen").innerHTML +=
+        `<tr>
+            <td class="col-4">Categoría con mayor ganancia</td>
+            <td class="col-4 text-end"><mark class="text-white bg-info">${categoriaMayorGanancia().categoriaConMayorGanancia}</mark></td>
+            <td class="col-4 text-end"><span class="text-success">${'+$' + categoriaMayorGanancia().mayorGanancia}</span></td>
+        </tr>
+        <tr>
+            <td class="col-4">Categoría con mayor gasto</td>
+            <td class="col-4 text-end"><mark class="text-white bg-info">${categoriaMayorGasto().categoriaConMayorGasto}</mark></td>
+            <td class="col-4 text-end"><span class="text-danger">${'-$' + categoriaMayorGasto().mayorGasto}</span></td>
+        </tr>
+        <tr>
+            <td class="col-4">Categoría con mayor balance</td>
+            <td class="col-4 text-end"><mark class="text-white bg-info">${categoriaMayorBalance().categoriaConMayorBalance}</mark></td>
+            <td class="col-4 text-end"><span>${'$' + categoriaMayorBalance().balance}</span></td>
+        </tr>
+        <tr>
+            <td class="col-4">Mes con mayor ganancia</td>
+            <td class="col-4 text-end">${mesMayorGanancia().mesConMayorGanancia}</td>
+            <td class="col-4 text-end"><span class="text-success">${'+$' + mesMayorGanancia().mayorGanancia}</span></td>
+        </tr>
+        <tr>
+            <td class="col-4">Mes con mayor gasto</td>
+            <td class="col-4 text-end">${mesMayorGasto().mesConMayorGasto}</td>
+            <td class="col-4 text-end"><span class="text-danger">${'-$' + mesMayorGasto().mayorGasto}</span></td>
+        </tr>`
+    document.getElementById("reportes-totales-categoria").innerHTML = ``
+    document.getElementById("reportes-totales-categoria").innerHTML +=
+        `<tr>
+            <th class="col-3">Categoria</th>
+            <th class="col-3 text-end">Ganancias</th>
+            <th class="col-3 text-end">Gastos</th>
+            <th class="col-3 text-end">Balance</th>
+        </tr>`
+    for (let i = 0; i < getCategorias().length; i++) {
+        if (gananciaPorCategoria(getCategorias[i], getOperaciones()) >= 0) {
+            document.getElementById("reportes-totales-categoria").innerHTML +=
+                `<tr>
+                    <td>${getCategorias()[i]}</td>
+                    <td class="text-end"><span class="text-success">${'+ ' + montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGanancias(getOperaciones())))}</span></td>
+                    <td class="text-end"><span class="text-danger">${'- ' + montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGastos(getOperaciones())))}</span></td>
+                    <td class="text-end"><span class="text-success">${'+ ' + (montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGanancias(getOperaciones()))) - montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGastos(getOperaciones()))))}</span></td>
+                </tr>`
+        } else {
+            document.getElementById("reportes-totales-categoria").innerHTML +=
+                `<tr>
+                    <td>${getCategorias()[i]}</td>
+                    <td class="text-end"><span class="text-success">${'+ ' + montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGanancias(getOperaciones())))}</span></td>
+                    <td class="text-end"><span class="text-danger">${'- ' + montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGastos(getOperaciones())))}</span></td>
+                    <td class="text-end"><span class="text-danger">${'- ' + (montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGanancias(getOperaciones()))) - montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGastos(getOperaciones()))))}</span></td>
+                </tr>`
+        }
+    }
+    document.getElementById("reportes-totales-mes").innerHTML = ``
+    document.getElementById("reportes-totales-mes").innerHTML +=
+        `<tr>
+            <th class="col-3">Mes</th>
+            <th class="col-3 text-end">Ganancias</th>
+            <th class="col-3 text-end">Gastos</th>
+            <th class="col-3 text-end">Balance</th>
+        </tr>`
+    let anios = getAnios(getOperaciones())
+    let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    for (let i = 0; i < anios.length; i++) {
+        for (let j = 0; j < meses.length; j++) {
+            let operaciones = operacionesPorMes(meses[j], operacionesPorAnio(anios[i], getOperaciones()))
+            if (operaciones.length > 0) {
+                if (montoOperaciones(operaciones) >= 0) {
+                   document.getElementById("reportes-totales-mes").innerHTML +=
+                `<tr>
+                    <td>${anios[i] + '-' + meses[j]}</td>
+                    <td class="text-end"><span class="text-success">${'+ ' + montoOperaciones(getGanancias(operaciones))}</span></td>
+                    <td class="text-end"><span class="text-danger">${'- ' + montoOperaciones(getGastos(operaciones))}</span></td>
+                    <td class="text-end"><span class="text-success">${'+ ' + (montoOperaciones(getGanancias(operaciones)) - montoOperaciones(getGastos(operaciones)))}</span></td>
+                </tr>` 
+                } else {
+                    `<tr>
+                    <td>${anios[i] + '-' + meses[j]}</td>
+                    <td class="text-end"><span class="text-success">${'+ ' + montoOperaciones(getGanancias(operaciones))}</span></td>
+                    <td class="text-end"><span class="text-danger">${'- ' + montoOperaciones(getGastos(operaciones))}</span></td>
+                    <td class="text-end"><span class="text-danger">${'- ' + (montoOperaciones(getGanancias(operaciones)) - montoOperaciones(getGastos(operaciones)))}</span></td>
+                </tr>` 
+                }
+            }
+        }
     }
 }
 
@@ -295,6 +393,58 @@ function deleteOperacion(id) {
     populateOperaciones()
 }
 
+// filtros funciones
+
+function filtrarOperacionesTipo(tipo, operaciones) {
+    if (tipo === 'Todos') {
+        return operaciones
+    } else if(tipo == 'Ganancias') {
+        return getGanancias(operaciones)
+    } else if(tipo == 'Gastos') {
+        return getGastos(operaciones)
+    }
+}
+
+function filtrarOperacionesCategoria(categoria, operaciones) {
+    if (categoria === 'Todas') {
+        return operaciones
+    } else {
+        let operacionesCategoria = []
+        for (let i = 0; i < operaciones.length; i++) {
+            if (operaciones[i].categoria == categoria) {
+                operacionesCategoria.push(operaciones[i])
+            }
+        }
+        return operacionesCategoria
+    }
+}
+
+function filtrarOperacionesSinceDate(date, operaciones) {
+    let operacionesSinceDate = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (operaciones[i].fecha >= date) {
+            operacionesSinceDate.push(operaciones[i])
+        }
+    }
+    return operacionesSinceDate
+}
+
+function sortOperacionesFechaMenosReciente(operaciones) {
+    return operaciones.sort((a, b) => a.fecha.localeCompare(b.fecha))
+}
+
+function sortOperacionesMenorMonto(operaciones) {
+    return operaciones.sort(function (a, b) {
+        a.monto = parseFloat(a.monto)
+        b.monto = parseFloat(b.monto)
+        return a.monto - b.monto
+    })
+}
+
+function sortOperacionesAZ(operaciones) {
+    return operaciones.sort((a, b) => a.descripcion.localeCompare(b.descripcion))
+}
+
 // Funciones para Balance
 
 function getGanancias(operaciones) {
@@ -315,6 +465,211 @@ function getGastos(operaciones) {
         }
     }
     return gastos
+}
+
+function getGananciaDeOperacion(operacion) {
+    if (operacion.tipo == 'Ganancia') {
+        return parseFloat(operacion.monto)
+    }
+}
+
+function getGastoDeOperacion(operacion) {
+    if (operacion.tipo == 'Gasto') {
+        return parseFloat(operacion.monto)
+    }
+}
+
+// Reportes
+
+function operacionMayorMonto(operaciones) {
+    let mayorMonto = 0
+    let operacionConMayorMonto
+    for (let i = 0; i < operaciones.length; i++) {
+        if (parseFloat(operaciones[i].monto) > mayorMonto) {
+            operacionConMayorMonto = operaciones[i]
+            mayorMonto = operaciones[i].monto
+        }
+    }
+    return operacionConMayorMonto
+}
+
+function categoriaMayorGanancia() {
+    let operaciones = getOperaciones()
+    let categorias = getCategorias()
+    let categoriaConMayorGanancia = ''
+    let mayorGanancia = 0
+    for(let i = 0; i < categorias.length; i++) {
+        if (gananciaPorCategoria(categorias[i], operaciones)>mayorGanancia) {
+            mayorGanancia = gananciaPorCategoria(categorias[i], operaciones)
+            categoriaConMayorGanancia = categorias[i]
+        }
+    }
+    return {
+        categoriaConMayorGanancia: categoriaConMayorGanancia,
+        mayorGanancia: mayorGanancia
+    }
+}
+
+function categoriaMayorGasto() {
+    let operaciones = getOperaciones()
+    let categorias = getCategorias()
+    let categoriaConMayorGasto = ''
+    let mayorGasto = 0
+    for(let i = 0; i < categorias.length; i++) {
+        if (gastoPorCategoria(categorias[i], operaciones)>mayorGasto) {
+            mayorGasto = gastoPorCategoria(categorias[i], operaciones)
+            categoriaConMayorGasto = categorias[i]
+        }
+    }
+    return {
+        categoriaConMayorGasto: categoriaConMayorGasto,
+        mayorGasto: mayorGasto
+    }
+}
+
+function categoriaMayorBalance() {
+    let operaciones = getOperaciones()
+    let categorias = getCategorias()
+    let balance = 0
+    let categoriaConMayorBalance = ''
+    for(let i = 0; i < categorias.length; i++) {
+        if(gananciaPorCategoria(categorias[i], getGanancias(operaciones)) - gastoPorCategoria(categorias[i], getGastos(operaciones)) > balance) {
+            balance = gananciaPorCategoria(categorias[i], getGanancias(operaciones)) - gastoPorCategoria(categorias[i], getGastos(operaciones))
+            categoriaConMayorBalance = categorias[i]
+        }
+    }
+    return {
+        categoriaConMayorBalance: categoriaConMayorBalance,
+        balance: balance
+    }
+}
+
+function getMesOperacion(operacion) {
+    return operacion.fecha.split('-')[1]
+}
+
+function getAnioOperacion(operacion) {
+    return operacion.fecha.split('-')[0]
+}
+
+function getFechaOperacion(operacion) {
+    return operacion.fecha.split('-')[0] + '-' + operacion.fecha.split('-')[1]
+}
+
+function getAnios(operaciones) {
+    operaciones = sortOperacionesFechaMenosReciente(operaciones)
+    let primerAnio = parseInt(getAnioOperacion(operaciones[0]))
+    let ultimoAnio = parseInt(getAnioOperacion(operaciones[operaciones.length - 1]))
+    let anios = []
+    for (let i = 0; primerAnio + i <= ultimoAnio; i++) {
+        anios.push(primerAnio + i)
+    }
+    return anios
+}
+
+function operacionesPorAnio(anio, operaciones) {
+    let operacionesDelAnio = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (getAnioOperacion(operaciones[i]) == anio) {
+            operacionesDelAnio.push(operaciones[i])
+        }
+    }
+    return operacionesDelAnio
+}
+
+function operacionMayorGanancia(operaciones) {
+    let mayorGanancia = 0
+    let operacionMayorGanancia = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (getGananciaDeOperacion(operaciones[i]) > mayorGanancia) {
+            mayorGanancia = getGananciaDeOperacion(operaciones[i])
+            operacionMayorGanancia = operaciones[i]
+        }
+    }
+    return operacionMayorGanancia
+}
+
+function operacionMayorGasto(operaciones) {
+    let mayorGasto = 0
+    let operacionMayorGasto = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (getGastoDeOperacion(operaciones[i]) > mayorGasto) {
+            mayorGasto = getGastoDeOperacion(operaciones[i])
+            operacionMayorGasto = operaciones[i]
+        }
+    }
+    return operacionMayorGasto
+}
+
+function operacionesPorMes(mes, operaciones) {
+    let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    let operacionesDelMes = []
+    for (let i = 0; i < operaciones.length; i++) {
+        if (meses[parseInt(getMesOperacion(operaciones[i])) - 1] == mes) {
+            operacionesDelMes.push(operaciones[i])
+        }
+    }
+    return operacionesDelMes
+}
+
+function mesMayorGanancia() {
+    let mesConMayorGanancia = ''
+    let mayorGanancia = 0
+    let anios = getAnios(getOperaciones())
+    let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    for (let i = 0; i < anios.length; i++) {
+        for (let j = 0; j < meses.length; j++) {
+            let operaciones = operacionesPorMes(meses[j], operacionesPorAnio(anios[i], getGanancias(getOperaciones())))
+            if (operaciones.length > 0) {
+                if (montoOperaciones(operaciones) > mayorGanancia) {
+                    mayorGanancia = montoOperaciones(operaciones)
+                    mesConMayorGanancia = meses[j]
+                }
+            }
+        }
+    }
+    return {
+        mesConMayorGanancia: mesConMayorGanancia,
+        mayorGanancia: mayorGanancia
+    }
+}
+
+function mesMayorGasto() {
+    let mesConMayorGasto = ''
+    let mayorGasto = 0
+    let anios = getAnios(getOperaciones())
+    let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    for (let i = 0; i < anios.length; i++) {
+        for (let j = 0; j < meses.length; j++) {
+            let operaciones = operacionesPorMes(meses[j], operacionesPorAnio(anios[i], getGastos(getOperaciones())))
+            if (operaciones.length > 0) {
+                if (montoOperaciones(operaciones) > mayorGasto) {
+                    mayorGasto = montoOperaciones(operaciones)
+                    mesConMayorGasto = meses[j]
+                }
+            }
+        }
+    }
+    return {
+        mesConMayorGasto: mesConMayorGasto,
+        mayorGasto: mayorGasto
+    }
+}
+
+function gananciaDelMes(mes, operaciones) {
+    return montoOperaciones(operacionesPorMes(mes, getGanancias(operaciones)))
+}
+
+function gastoDelMes(mes, operaciones) {
+    return montoOperaciones(operacionesPorMes(mes, getGastos(operaciones)))
+}
+
+function gananciaPorCategoria(categoria, operaciones) {
+    return montoOperaciones(filtrarOperacionesCategoria(categoria, getGanancias(operaciones)))
+}
+
+function gastoPorCategoria(categoria, operaciones) {
+    return montoOperaciones(filtrarOperacionesCategoria(categoria, getGastos(operaciones)))
 }
 
 function montoOperaciones(operaciones) {
