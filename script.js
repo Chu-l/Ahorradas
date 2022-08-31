@@ -393,6 +393,80 @@ function deleteOperacion(id) {
     populateOperaciones()
 }
 
+// Mostrar Filtrado
+
+function changeFilter(operaciones) {
+    let tipo = getValueFromSelect("filtros-tipo")
+    let categoria = getValueFromSelect("filtros-categoria")
+    let fecha = document.getElementById("filtros-fecha").value
+    if (getValueFromSelect("filtros-orden") == 'Más reciente') {
+        renderOperaciones(
+            filtrarOperacionesTipo(tipo,
+                filtrarOperacionesCategoria(categoria,
+                    filtrarOperacionesSinceDate(fecha,
+                        sortOperacionesFechaMenosReciente(operaciones).reverse()
+                    )
+                )
+            )
+        )
+    }
+    if (getValueFromSelect("filtros-orden") == 'Menos reciente') {
+        renderOperaciones(
+            filtrarOperacionesTipo(tipo,
+                filtrarOperacionesCategoria(categoria,
+                    filtrarOperacionesSinceDate(fecha,
+                        sortOperacionesFechaMenosReciente(operaciones)
+                    )
+                )
+            )
+        )
+    }
+    if (getValueFromSelect("filtros-orden") == 'Mayor monto') {
+        renderOperaciones(
+            filtrarOperacionesTipo(tipo,
+                filtrarOperacionesCategoria(categoria,
+                    filtrarOperacionesSinceDate(fecha,
+                        sortOperacionesMenorMonto(operaciones).reverse()
+                    )
+                )
+            )
+        )
+    }
+    if (getValueFromSelect("filtros-orden") == 'Menor monto') {
+        renderOperaciones(
+            filtrarOperacionesTipo(tipo,
+                filtrarOperacionesCategoria(categoria,
+                    filtrarOperacionesSinceDate(fecha,
+                        sortOperacionesMenorMonto(operaciones)
+                    )
+                )
+            )
+        )
+    }
+    if (getValueFromSelect("filtros-orden") == 'A/Z') {
+        renderOperaciones(
+            filtrarOperacionesTipo(tipo,
+                filtrarOperacionesCategoria(categoria,
+                    filtrarOperacionesSinceDate(fecha,
+                        sortOperacionesAZ(operaciones)
+                    )
+                )
+            )
+        )
+    }
+    if (getValueFromSelect("filtros-orden") == 'Z/A') {
+        renderOperaciones(
+            filtrarOperacionesTipo(tipo,
+                filtrarOperacionesCategoria(categoria,
+                    filtrarOperacionesSinceDate(fecha,
+                        sortOperacionesAZ(operaciones).reverse()
+                    )
+                )
+            )
+        )
+    }
+}
+
 // filtros funciones
 
 function filtrarOperacionesTipo(tipo, operaciones) {
