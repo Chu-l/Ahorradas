@@ -396,37 +396,21 @@ function deleteOperacion(id) {
 // filtros funciones
 
 function filtrarOperacionesTipo(tipo, operaciones) {
-    if (tipo === 'Todos') {
-        return operaciones
-    } else if(tipo == 'Ganancias') {
-        return getGanancias(operaciones)
-    } else if(tipo == 'Gastos') {
-        return getGastos(operaciones)
+    if (tipo !== 'Todos') {
+        return operaciones.filter(operacion => operacion.tipo === tipo)
     }
+    return operaciones
 }
 
 function filtrarOperacionesCategoria(categoria, operaciones) {
-    if (categoria === 'Todas') {
-        return operaciones
-    } else {
-        let operacionesCategoria = []
-        for (let i = 0; i < operaciones.length; i++) {
-            if (operaciones[i].categoria == categoria) {
-                operacionesCategoria.push(operaciones[i])
-            }
-        }
-        return operacionesCategoria
+    if (categoria !== 'Todas') {
+        return operaciones.filter(operacion => operacion.categoria === categoria)
     }
+    return operaciones
 }
 
-function filtrarOperacionesSinceDate(date, operaciones) {
-    let operacionesSinceDate = []
-    for (let i = 0; i < operaciones.length; i++) {
-        if (operaciones[i].fecha >= date) {
-            operacionesSinceDate.push(operaciones[i])
-        }
-    }
-    return operacionesSinceDate
+function filtrarOperacionesSinceDate(fecha, operaciones) {
+    return operaciones.filter(operacion => operacion.fecha > fecha)
 }
 
 function sortOperacionesFechaMenosReciente(operaciones) {
@@ -577,29 +561,29 @@ function operacionesPorAnio(anio, operaciones) {
     return operacionesDelAnio
 }
 
-function operacionMayorGanancia(operaciones) {
-    let mayorGanancia = 0
-    let operacionMayorGanancia = []
-    for (let i = 0; i < operaciones.length; i++) {
-        if (getGananciaDeOperacion(operaciones[i]) > mayorGanancia) {
-            mayorGanancia = getGananciaDeOperacion(operaciones[i])
-            operacionMayorGanancia = operaciones[i]
-        }
-    }
-    return operacionMayorGanancia
-}
+// function operacionMayorGanancia(operaciones) {
+//     let mayorGanancia = 0
+//     let operacionMayorGanancia = []
+//     for (let i = 0; i < operaciones.length; i++) {
+//         if (getGananciaDeOperacion(operaciones[i]) > mayorGanancia) {
+//             mayorGanancia = getGananciaDeOperacion(operaciones[i])
+//             operacionMayorGanancia = operaciones[i]
+//         }
+//     }
+//     return operacionMayorGanancia
+// }
 
-function operacionMayorGasto(operaciones) {
-    let mayorGasto = 0
-    let operacionMayorGasto = []
-    for (let i = 0; i < operaciones.length; i++) {
-        if (getGastoDeOperacion(operaciones[i]) > mayorGasto) {
-            mayorGasto = getGastoDeOperacion(operaciones[i])
-            operacionMayorGasto = operaciones[i]
-        }
-    }
-    return operacionMayorGasto
-}
+// function operacionMayorGasto(operaciones) {
+//     let mayorGasto = 0
+//     let operacionMayorGasto = []
+//     for (let i = 0; i < operaciones.length; i++) {
+//         if (getGastoDeOperacion(operaciones[i]) > mayorGasto) {
+//             mayorGasto = getGastoDeOperacion(operaciones[i])
+//             operacionMayorGasto = operaciones[i]
+//         }
+//     }
+//     return operacionMayorGasto
+// }
 
 function operacionesPorMes(mes, operaciones) {
     let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
@@ -656,13 +640,13 @@ function mesMayorGasto() {
     }
 }
 
-function gananciaDelMes(mes, operaciones) {
-    return montoOperaciones(operacionesPorMes(mes, getGanancias(operaciones)))
-}
+// function gananciaDelMes(mes, operaciones) {
+//     return montoOperaciones(operacionesPorMes(mes, getGanancias(operaciones)))
+// }
 
-function gastoDelMes(mes, operaciones) {
-    return montoOperaciones(operacionesPorMes(mes, getGastos(operaciones)))
-}
+// function gastoDelMes(mes, operaciones) {
+//     return montoOperaciones(operacionesPorMes(mes, getGastos(operaciones)))
+// }
 
 function gananciaPorCategoria(categoria, operaciones) {
     return montoOperaciones(filtrarOperacionesCategoria(categoria, getGanancias(operaciones)))
