@@ -98,17 +98,17 @@
                         </div>
                         <div id="filtros">
                             <label class="h6" for="">Tipo</label>
-                            <select class="form-select" name="" id="filtros-tipo">
+                            <select class="form-select" name="" id="filtros-tipo" onchange="changeFilter(getOperaciones())">
                                 <option value="">Todos</option>
                                 <option value="">Gasto</option>
                                 <option value="">Ganancia</option>
                             </select>
                             <label class="h6" for="">Categoría</label>
-                            <select class="form-select" name="" id="filtros-categoria"></select>
+                            <select class="form-select" name="" id="filtros-categoria" onchange="changeFilter(getOperaciones())"></select>
                             <label class="h6" for="">Desde</label>
-                            <input class="form-control" type="date" id="filtros-fecha">
+                            <input class="form-control" type="date" id="filtros-fecha" onchange="changeFilter(getOperaciones())">
                             <label class="h6" for="">Ordenar por</label>
-                            <select class="form-select" name="" id="filtros-orden">
+                            <select class="form-select" name="" id="filtros-orden" onchange="changeFilter(getOperaciones())">
                                 <option value="">Más reciente</option>
                                 <option value="">Menos reciente</option>
                                 <option value="">Mayor monto</option>
