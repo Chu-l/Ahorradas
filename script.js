@@ -12,6 +12,16 @@ if (localStorage.getItem("contador") === null) {
     localStorage.setItem('contador', 0)
 }
 
+try {
+    localStorage.setItem("fecha", sortOperacionesFechaMenosReciente(getOperaciones())[0].fecha)
+} catch (error) {
+    localStorage.setItem("fecha", new Date().toISOString().split('T')[0])
+}
+
+document.getElementById("filtros-fecha").value = localStorage.getItem("fecha")
+document.getElementById("nueva-operacion-fecha").value = localStorage.getItem("fecha")
+document.getElementById("editar-operacion-fecha").value = localStorage.getItem("fecha")
+
 populateCategorias()
 populateOperaciones()
 
@@ -171,7 +181,7 @@ function renderOperaciones(operaciones) {
         document.getElementById("operaciones-results").classList.remove('visually-hidden')
         showOperaciones()
         document.getElementById("operaciones-results").innerHTML =
-        `<tr>
+            `<tr>
             <th>Descripción</th>
             <th>Categoría</th>
             <th>Fecha</th>
@@ -180,7 +190,7 @@ function renderOperaciones(operaciones) {
         </tr>`
         for (let i = 0; i < operaciones.length; i++) {
             document.getElementById("operaciones-results").innerHTML +=
-            `<tr>
+                `<tr>
                 <td>${operaciones[i].descripcion}</td>
                 <td><mark class="text-white bg-info">${operaciones[i].categoria}</mark></td>
                 <td>${operaciones[i].fecha}</td>
@@ -235,22 +245,24 @@ function renderReportes() {
             <th class="col-3 text-end">Balance</th>
         </tr>`
     for (let i = 0; i < getCategorias().length; i++) {
-        if (gananciaPorCategoria(getCategorias[i], getOperaciones()) >= 0) {
-            document.getElementById("reportes-totales-categoria").innerHTML +=
-                `<tr>
+        if (getOperaciones().filter(operacion => operacion.categoria == getCategorias()[i]).length > 0) {
+            if (gananciaPorCategoria(getCategorias[i], getOperaciones()) >= 0) {
+                document.getElementById("reportes-totales-categoria").innerHTML +=
+                    `<tr>
                     <td>${getCategorias()[i]}</td>
                     <td class="text-end"><span class="text-success">${'+ ' + montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGanancias(getOperaciones())))}</span></td>
                     <td class="text-end"><span class="text-danger">${'- ' + montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGastos(getOperaciones())))}</span></td>
                     <td class="text-end"><span class="text-success">${'+ ' + (montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGanancias(getOperaciones()))) - montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGastos(getOperaciones()))))}</span></td>
                 </tr>`
-        } else {
-            document.getElementById("reportes-totales-categoria").innerHTML +=
-                `<tr>
+            } else {
+                document.getElementById("reportes-totales-categoria").innerHTML +=
+                    `<tr>
                     <td>${getCategorias()[i]}</td>
                     <td class="text-end"><span class="text-success">${'+ ' + montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGanancias(getOperaciones())))}</span></td>
                     <td class="text-end"><span class="text-danger">${'- ' + montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGastos(getOperaciones())))}</span></td>
                     <td class="text-end"><span class="text-danger">${'- ' + (montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGanancias(getOperaciones()))) - montoOperaciones(filtrarOperacionesCategoria(getCategorias()[i], getGastos(getOperaciones()))))}</span></td>
                 </tr>`
+            }
         }
     }
     document.getElementById("reportes-totales-mes").innerHTML = ``
@@ -268,20 +280,20 @@ function renderReportes() {
             let operaciones = operacionesPorMes(meses[j], operacionesPorAnio(anios[i], getOperaciones()))
             if (operaciones.length > 0) {
                 if (montoOperaciones(operaciones) >= 0) {
-                   document.getElementById("reportes-totales-mes").innerHTML +=
-                `<tr>
+                    document.getElementById("reportes-totales-mes").innerHTML +=
+                        `<tr>
                     <td>${anios[i] + '-' + meses[j]}</td>
                     <td class="text-end"><span class="text-success">${'+ ' + montoOperaciones(getGanancias(operaciones))}</span></td>
                     <td class="text-end"><span class="text-danger">${'- ' + montoOperaciones(getGastos(operaciones))}</span></td>
                     <td class="text-end"><span class="text-success">${'+ ' + (montoOperaciones(getGanancias(operaciones)) - montoOperaciones(getGastos(operaciones)))}</span></td>
-                </tr>` 
+                </tr>`
                 } else {
                     `<tr>
                     <td>${anios[i] + '-' + meses[j]}</td>
                     <td class="text-end"><span class="text-success">${'+ ' + montoOperaciones(getGanancias(operaciones))}</span></td>
                     <td class="text-end"><span class="text-danger">${'- ' + montoOperaciones(getGastos(operaciones))}</span></td>
                     <td class="text-end"><span class="text-danger">${'- ' + (montoOperaciones(getGanancias(operaciones)) - montoOperaciones(getGastos(operaciones)))}</span></td>
-                </tr>` 
+                </tr>`
                 }
             }
         }
@@ -362,19 +374,19 @@ function editOperacion(id) {
     let tipo = getValueFromSelect("editar-operacion-tipo")
     let categoria = getValueFromSelect("editar-operacion-categoria")
     let fecha = document.getElementById("editar-operacion-fecha").value
-    if(descripcion != '') {
+    if (descripcion != '') {
         operacion.descripcion = descripcion
     }
-    if(monto != '') {
+    if (monto != '') {
         operacion.monto = monto
     }
-    if(tipo != '') {
+    if (tipo != '') {
         operacion.tipo = tipo
     }
-    if(categoria != '') {
+    if (categoria != '') {
         operacion.categoria = categoria
     }
-    if(fecha != '') {
+    if (fecha != '') {
         operacion.fecha = fecha
     }
     let operaciones = getOperaciones()
@@ -507,8 +519,8 @@ function sortOperacionesAZ(operaciones) {
 
 function getGanancias(operaciones) {
     let ganancias = []
-    for(let i = 0; i < operaciones.length; i++) {
-        if(operaciones[i].tipo === 'Ganancia') {
+    for (let i = 0; i < operaciones.length; i++) {
+        if (operaciones[i].tipo === 'Ganancia') {
             ganancias.push(operaciones[i])
         }
     }
@@ -517,8 +529,8 @@ function getGanancias(operaciones) {
 
 function getGastos(operaciones) {
     let gastos = []
-    for(let i = 0; i < operaciones.length; i++) {
-        if(operaciones[i].tipo === 'Gasto') {
+    for (let i = 0; i < operaciones.length; i++) {
+        if (operaciones[i].tipo === 'Gasto') {
             gastos.push(operaciones[i])
         }
     }
@@ -556,8 +568,8 @@ function categoriaMayorGanancia() {
     let categorias = getCategorias()
     let categoriaConMayorGanancia = ''
     let mayorGanancia = 0
-    for(let i = 0; i < categorias.length; i++) {
-        if (gananciaPorCategoria(categorias[i], operaciones)>mayorGanancia) {
+    for (let i = 0; i < categorias.length; i++) {
+        if (gananciaPorCategoria(categorias[i], operaciones) > mayorGanancia) {
             mayorGanancia = gananciaPorCategoria(categorias[i], operaciones)
             categoriaConMayorGanancia = categorias[i]
         }
@@ -573,8 +585,8 @@ function categoriaMayorGasto() {
     let categorias = getCategorias()
     let categoriaConMayorGasto = ''
     let mayorGasto = 0
-    for(let i = 0; i < categorias.length; i++) {
-        if (gastoPorCategoria(categorias[i], operaciones)>mayorGasto) {
+    for (let i = 0; i < categorias.length; i++) {
+        if (gastoPorCategoria(categorias[i], operaciones) > mayorGasto) {
             mayorGasto = gastoPorCategoria(categorias[i], operaciones)
             categoriaConMayorGasto = categorias[i]
         }
@@ -590,8 +602,8 @@ function categoriaMayorBalance() {
     let categorias = getCategorias()
     let balance = 0
     let categoriaConMayorBalance = ''
-    for(let i = 0; i < categorias.length; i++) {
-        if(gananciaPorCategoria(categorias[i], getGanancias(operaciones)) - gastoPorCategoria(categorias[i], getGastos(operaciones)) > balance) {
+    for (let i = 0; i < categorias.length; i++) {
+        if (gananciaPorCategoria(categorias[i], getGanancias(operaciones)) - gastoPorCategoria(categorias[i], getGastos(operaciones)) > balance) {
             balance = gananciaPorCategoria(categorias[i], getGanancias(operaciones)) - gastoPorCategoria(categorias[i], getGastos(operaciones))
             categoriaConMayorBalance = categorias[i]
         }
@@ -732,7 +744,7 @@ function gastoPorCategoria(categoria, operaciones) {
 
 function montoOperaciones(operaciones) {
     let monto = 0
-    for(let i = 0; i < operaciones.length; i++) {
+    for (let i = 0; i < operaciones.length; i++) {
         monto += parseFloat(operaciones[i].monto)
     }
     return monto
