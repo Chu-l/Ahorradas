@@ -329,6 +329,11 @@ function editarCategoria(index) {
 
 function eliminarCategoria(index) {
     let categorias = JSON.parse(localStorage.getItem("categorias"))
+    let categoria = categorias[index]
+    let operaciones = filtrarOperacionesCategoria(categoria, getOperaciones())
+    for (let i = 0; i < operaciones.length; i++) {
+        deleteOperacion(operaciones[i].id)        
+    }
     categorias.splice(index, 1)
     localStorage.removeItem('categorias')
     localStorage.setItem('categorias', JSON.stringify(categorias))
@@ -647,30 +652,6 @@ function operacionesPorAnio(anio, operaciones) {
     return operacionesDelAnio
 }
 
-// function operacionMayorGanancia(operaciones) {
-//     let mayorGanancia = 0
-//     let operacionMayorGanancia = []
-//     for (let i = 0; i < operaciones.length; i++) {
-//         if (getGananciaDeOperacion(operaciones[i]) > mayorGanancia) {
-//             mayorGanancia = getGananciaDeOperacion(operaciones[i])
-//             operacionMayorGanancia = operaciones[i]
-//         }
-//     }
-//     return operacionMayorGanancia
-// }
-
-// function operacionMayorGasto(operaciones) {
-//     let mayorGasto = 0
-//     let operacionMayorGasto = []
-//     for (let i = 0; i < operaciones.length; i++) {
-//         if (getGastoDeOperacion(operaciones[i]) > mayorGasto) {
-//             mayorGasto = getGastoDeOperacion(operaciones[i])
-//             operacionMayorGasto = operaciones[i]
-//         }
-//     }
-//     return operacionMayorGasto
-// }
-
 function operacionesPorMes(mes, operaciones) {
     let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
     let operacionesDelMes = []
@@ -725,14 +706,6 @@ function mesMayorGasto() {
         mayorGasto: mayorGasto
     }
 }
-
-// function gananciaDelMes(mes, operaciones) {
-//     return montoOperaciones(operacionesPorMes(mes, getGanancias(operaciones)))
-// }
-
-// function gastoDelMes(mes, operaciones) {
-//     return montoOperaciones(operacionesPorMes(mes, getGastos(operaciones)))
-// }
 
 function gananciaPorCategoria(categoria, operaciones) {
     return montoOperaciones(filtrarOperacionesCategoria(categoria, getGanancias(operaciones)))
